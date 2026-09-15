@@ -1,13 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const SECTIONS = [
   { id: "about", label: "À propos" },
   { id: "experience", label: "Expérience" },
   { id: "interests", label: "Intérêts" },
+  { id: "projects", label: "Projets" },
   { id: "contact", label: "Contact" },
 ];
 
-export function Nav() {
+/**
+ * `showProjects` suit la présence réelle de la section Projets, qui disparaît
+ * si les données GitHub sont indisponibles. Sans ça, le menu pointerait vers
+ * une ancre inexistante.
+ */
+export function Nav({ showProjects = true }: { showProjects?: boolean }) {
+  const sections = useMemo(
+    () => SECTIONS.filter((s) => s.id !== "projects" || showProjects),
+    [showProjects],
+  );
+
   const [active, setActive] = useState<string>("about");
   const [scrolled, setScrolled] = useState(false);
 
@@ -27,12 +38,12 @@ export function Nav() {
       },
       { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
     );
-    SECTIONS.forEach((s) => {
+    sections.forEach((s) => {
       const el = document.getElementById(s.id);
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, []);
+  }, [sections]);
 
   return (
     <header
@@ -50,7 +61,7 @@ export function Nav() {
             scrolled ? "shadow-sm" : ""
           }`}
         >
-          {SECTIONS.map((s) => (
+          {sections.map((s) => (
             <a
               key={s.id}
               href={`#${s.id}`}

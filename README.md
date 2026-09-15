@@ -1,9 +1,6 @@
 # Hichem Gouia — Portfolio
 
-Site personnel. Cloné à l'identique depuis
-[kwokchunghim/tony-kwok-portfolio](https://github.com/kwokchunghim/tony-kwok-portfolio),
-avec le contenu remplacé par des placeholders et la cible de déploiement
-retargetée de Cloudflare Workers vers Railway.
+Site personnel.
 
 ## Stack
 
@@ -32,6 +29,9 @@ Autres scripts : `npm run build`, `npm start` (sert le build de `.output/`),
 - `src/components/portfolio/` — sections du portfolio (Nav, Section, NeuralBackground)
 - `src/components/ui/` — primitives shadcn/ui
 - `src/styles.css` — design tokens et setup Tailwind
+- `src/lib/github.ts` — types de la section Projets (isomorphe)
+- `src/lib/github.server.ts` — appel GraphQL GitHub, validation, cache (serveur only)
+- `src/lib/github-fn.ts` — server function consommée par le loader de `/`
 - `src/server.ts` / `src/start.ts` — wrappers SSR de gestion d'erreurs
 
 ## Où remplir vos informations
@@ -49,6 +49,8 @@ Tout le contenu est actuellement en placeholder. Les endroits à éditer :
 | Nom dans le footer | `src/routes/index.tsx` → `FOOTER` |
 | Initiales « HG » et libellés du menu | `src/components/portfolio/Nav.tsx` |
 | Métadonnées globales, langue, token Google Search Console | `src/routes/__root.tsx` |
+| Compte GitHub affiché | variable `GITHUB_LOGIN` (défaut `iamhmh`) |
+| Projets mis en avant | à épingler sur votre profil GitHub — aucun code à modifier |
 | Domaine du sitemap | `src/routes/sitemap[.]xml.ts` → `BASE_URL` |
 | Domaine du robots.txt | `public/robots.txt` |
 | Image de partage (Open Graph, 1200×630) | `public/social-preview.png` |
@@ -59,6 +61,55 @@ Les couleurs et le rayon des coins se règlent dans `src/styles.css`
 ### Image placeholder à remplacer
 
 - `public/social-preview.png` — aperçu de partage (1200×630)
+
+## Section Projets (GitHub)
+
+La section affiche vos **dépôts épinglés** et votre **calendrier de
+contributions** des 12 derniers mois glissants. Le contenu se pilote depuis
+GitHub : épingler ou désépingler un dépôt suffit, aucun code à toucher.
+
+### Pourquoi un token est indispensable
+
+Ces deux données ne sont exposées que par l'API **GraphQL** de GitHub, qui
+exige une authentification même pour des données publiques. Il n'existe aucun
+endpoint REST équivalent (`/users/<login>/pinned` renvoie 404). Sans token, la
+section est masquée et le reste du site fonctionne normalement.
+
+### Créer le token
+
+Sur https://github.com/settings/tokens, créez un token **classic** avec le seul
+scope **`read:user`**. Il ne donne aucun droit d'écriture et aucun accès aux
+dépôts privés. Notez sa date d'expiration : à son échéance, la section
+disparaîtra silencieusement jusqu'au renouvellement.
+
+Vérifiez-le avant de déployer :
+
+```bash
+curl -s -H "Authorization: Bearer VOTRE_TOKEN" -X POST https://api.github.com/graphql \
+  -d '{"query":"{viewer{login} user(login:\"iamhmh\"){pinnedItems(first:6,types:REPOSITORY){totalCount} contributionsCollection{contributionCalendar{totalContributions}}}}"}'
+```
+
+Une réponse contenant `totalCount` et `totalContributions` confirme que tout
+fonctionne. Si `totalContributions` vaut 0 ou manque, le scope est insuffisant.
+
+### En local
+
+Copiez `.env.example` vers `.env` et renseignez `GITHUB_TOKEN`. Le fichier est
+chargé automatiquement par `npm run dev`, et il est ignoré par git.
+
+### Sur Railway
+
+Service → **Variables** → ajoutez `GITHUB_TOKEN` (et `GITHUB_LOGIN` si votre
+compte n'est pas `iamhmh`). Railway redéploie automatiquement à l'ajout.
+
+### Comportement
+
+Le token n'atteint jamais le navigateur : l'appel a lieu dans le loader de la
+route, côté serveur. La réponse est gardée en cache une heure ; passé ce délai
+elle est toujours servie immédiatement et rafraîchie en tâche de fond. En cas
+de panne GitHub, de token expiré ou de quota dépassé, la dernière donnée connue
+continue d'être affichée ; si aucune n'a jamais été récupérée, la section et
+son entrée de menu disparaissent — le visiteur ne voit jamais d'erreur.
 
 ## Déploiement sur Railway
 
@@ -106,6 +157,8 @@ que Railway injecte automatiquement.
   `/writing/$slug`, `src/lib/writing.ts` et les entrées correspondantes du
   sitemap). Pour la réintroduire plus tard, le dépôt d'origine reste la
   référence — ou `git show` sur l'historique de ce dépôt.
+- Section « Projets » ajoutée : elle n'existe pas dans le dépôt d'origine.
+  Voir la section dédiée plus haut.
 - Le dossier `.lovable/` (métadonnées de la plateforme Lovable) n'a pas
   été repris.
 - La dépendance `@hookform/resolvers` a été retirée. Elle n'était importée

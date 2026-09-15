@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Github, Linkedin, Mail, MapPin } from "lucide-react";
+import { ContributionGraph } from "@/components/portfolio/ContributionGraph";
 import { Nav } from "@/components/portfolio/Nav";
+import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { Section } from "@/components/portfolio/Section";
+import { getGithubData } from "@/lib/github-fn";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,6 +34,9 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: "https://hichemgouia.com/social-preview.png?v=1" },
     ],
   }),
+  // Les données GitHub sont chargées côté serveur : le token n'atteint jamais
+  // le navigateur, et le contenu est présent dès le HTML initial.
+  loader: async () => ({ github: await getGithubData() }),
   component: Index,
 });
 
@@ -93,9 +99,13 @@ const INTERESTS = [
 ];
 
 function Index() {
+  const { github } = Route.useLoaderData();
+  // La section n'apparaît que si GitHub a répondu au moins une fois.
+  const hasProjects = Boolean(github && (github.repos.length > 0 || github.contributions.weeks.length > 0));
+
   return (
     <div id="top" className="relative min-h-screen bg-background text-foreground">
-      <Nav />
+      <Nav showProjects={hasProjects} />
 
       {/* HERO */}
       <section className="relative pt-40 pb-24 sm:pt-48 sm:pb-32">
@@ -193,6 +203,40 @@ function Index() {
           ))}
         </div>
       </Section>
+
+      {/* PROJETS */}
+      {github && hasProjects ? (
+        <Section id="projects" eyebrow="Projets" title="Ce que je construis.">
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Mes dépôts épinglés sur GitHub, et mon activité des douze derniers mois.
+          </p>
+
+          {github.repos.length > 0 ? (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {github.repos.map((repo) => (
+                <ProjectCard key={repo.name} repo={repo} />
+              ))}
+            </div>
+          ) : null}
+
+          {github.contributions.weeks.length > 0 ? (
+            <ContributionGraph contributions={github.contributions} />
+          ) : null}
+
+          <div className="mt-8">
+            <a
+              href={`https://github.com/${github.login}`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-2 text-sm font-medium text-foreground transition hover:opacity-70"
+            >
+              <Github className="h-4 w-4" aria-hidden="true" />
+              Voir tous mes dépôts
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
+        </Section>
+      ) : null}
 
       {/* CONTACT */}
       <Section id="contact" eyebrow="Contact" title="Me contacter.">
