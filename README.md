@@ -108,3 +108,12 @@ que Railway injecte automatiquement.
   et n'ont pas été reprises.
 - Le dossier `.lovable/` (métadonnées de la plateforme Lovable) n'a pas
   été repris.
+- La dépendance `@hookform/resolvers` a été retirée. Elle n'était importée
+  nulle part dans le code, et son peer optionnel `ajv@^8` entrait en
+  conflit avec le `ajv@^6` d'eslint : `npm install` et `npm ci` calculaient
+  alors deux arbres différents, ce qui faisait échouer le build Railway
+  (`npm ci` refuse un lockfile désynchronisé). Le dépôt d'origine utilise
+  bun, dont la résolution diffère, et ne rencontrait donc pas ce cas.
+  Si vous ajoutez un jour une validation de formulaire (zod + react-hook-form),
+  réinstallez-la avec `npm i @hookform/resolvers ajv@^8` pour garder
+  l'arbre cohérent.
