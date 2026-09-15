@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { POSTS, isInternal } from "@/lib/writing";
 
 const BASE_URL = "https://hichemgouia.com";
 
@@ -16,11 +15,6 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
-          ...POSTS.filter(isInternal).map((p) => ({
-            path: `/writing/${p.slug}`,
-            changefreq: "monthly" as const,
-            priority: "0.7",
-          })),
         ];
 
         const urls = entries.map((e) =>

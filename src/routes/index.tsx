@@ -1,9 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Github, Linkedin, Mail, MapPin } from "lucide-react";
 import { Nav } from "@/components/portfolio/Nav";
 import { Section } from "@/components/portfolio/Section";
-import { POSTS, isInternal } from "@/lib/writing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -192,56 +191,6 @@ function Index() {
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </div>
           ))}
-        </div>
-      </Section>
-
-      {/* WRITING */}
-      <Section id="writing" eyebrow="Écrits" title="Notes et articles.">
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Une phrase pour annoncer les sujets sur lesquels vous écrivez.
-        </p>
-        <div className="mt-8 divide-y divide-border rounded-xl border border-border bg-card">
-          {POSTS.map((essay) => {
-            const content = (
-              <div className="grid gap-3 p-6 sm:grid-cols-[180px_1fr] sm:gap-8 sm:p-8">
-                <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {essay.date}
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-foreground sm:text-lg">
-                    {essay.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-foreground/80 sm:text-base">
-                    {essay.excerpt}
-                  </p>
-                  <div className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
-                    {isInternal(essay) ? "Lire l'article" : `Lire sur ${essay.source}`}
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                </div>
-              </div>
-            );
-            return isInternal(essay) ? (
-              <Link
-                key={essay.slug}
-                to="/writing/$slug"
-                params={{ slug: essay.slug }}
-                className="block transition hover:bg-background/50"
-              >
-                {content}
-              </Link>
-            ) : (
-              <a
-                key={essay.title}
-                href={essay.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block transition hover:bg-background/50"
-              >
-                {content}
-              </a>
-            );
-          })}
         </div>
       </Section>
 
