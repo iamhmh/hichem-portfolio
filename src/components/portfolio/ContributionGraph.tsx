@@ -42,15 +42,26 @@ function label(day: ActivityDay, hasGitlab: boolean): string {
 }
 
 /**
- * Une case porte les deux sources : triangle haut-gauche pour GitHub, triangle
- * bas-droit pour GitLab. Le dégradé à transition nette (0 50% / 50% 100%)
- * produit la coupe sans surcoût de balisage — une seule div par jour.
+ * La coupe en diagonale est réservée aux journées où les DEUX sources ont eu de
+ * l'activité : elle signale un chevauchement, elle n'est pas le rendu par
+ * défaut. Une journée à source unique reste un carré plein de sa couleur, ce
+ * qui rend la grille nettement plus lisible qu'une diagonale systématique.
+ *
+ * Le dégradé à transition nette (0 50% / 50% 100%) produit la coupe sans
+ * surcoût de balisage : une seule div par jour dans tous les cas.
  */
 function cellBackground(day: ActivityDay, hasGitlab: boolean): string {
   const gh = `var(--gh-${day.githubLevel})`;
   if (!hasGitlab) return gh;
-  const gl = `var(--gl-${day.gitlabLevel})`;
-  return `linear-gradient(135deg, ${gh} 0 50%, ${gl} 50% 100%)`;
+
+  if (day.github > 0 && day.gitlab > 0) {
+    return `linear-gradient(135deg, ${gh} 0 50%, var(--gl-${day.gitlabLevel}) 50% 100%)`;
+  }
+
+  // GitLab seul -> carré orange plein. GitHub seul ou journée vide -> carré
+  // vert plein ; --gh-0 et --gl-0 étant identiques, un jour sans activité reste
+  // neutre quelle que soit la branche empruntée.
+  return day.gitlab > 0 ? `var(--gl-${day.gitlabLevel})` : gh;
 }
 
 function Legend({ prefix, token }: { prefix: string; token: "gh" | "gl" }) {
@@ -184,8 +195,23 @@ export function ContributionGraph({ activity }: { activity: Activity }) {
       <div className="mt-4 flex flex-wrap items-center justify-end gap-x-6 gap-y-2">
         {hasGitlab ? (
           <>
-            <Legend prefix="◤ GitHub" token="gh" />
-            <Legend prefix="◢ GitLab" token="gl" />
+            {/* Sans cette mention, une case coupée se lit comme une troisième
+                couleur au lieu d'un chevauchement entre les deux sources. */}
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+              <span
+                className="rounded-[2px] ring-1 ring-inset ring-foreground/5"
+                style={{
+                  width: CELL,
+                  height: CELL,
+                  background:
+                    "linear-gradient(135deg, var(--gh-3) 0 50%, var(--gl-3) 50% 100%)",
+                }}
+                aria-hidden="true"
+              />
+              <span>les deux le même jour</span>
+            </div>
+            <Legend prefix="GitHub" token="gh" />
+            <Legend prefix="GitLab" token="gl" />
           </>
         ) : (
           <Legend prefix="" token="gh" />

@@ -71,11 +71,18 @@ La section affiche votre **calendrier de contributions** des 12 derniers mois
 glissants, puis vos **dépôts épinglés**. Le contenu se pilote depuis GitHub :
 épingler ou désépingler un dépôt suffit, aucun code à toucher.
 
-Le calendrier fusionne deux sources dans une seule grille. Chaque case est
-coupée en diagonale : **triangle haut-gauche vert pour GitHub, triangle
-bas-droit orange pour GitLab**. Les niveaux d'intensité sont calculés
-séparément par source, sinon une journée à 3 contributions GitLab paraîtrait
-aussi dense qu'une journée à 30 sur GitHub.
+Le calendrier fusionne deux sources dans une seule grille :
+
+- journée **GitHub seulement** → carré vert plein ;
+- journée **GitLab seulement** → carré orange plein ;
+- journée **sur les deux** → case coupée en diagonale, triangle haut-gauche
+  vert, triangle bas-droit orange.
+
+La diagonale signale donc un chevauchement, elle n'est pas le rendu par défaut —
+la grille reste lisible, et une case coupée attire l'œil là où c'est mérité.
+
+Les niveaux d'intensité sont calculés séparément par source, sinon une journée
+à 3 contributions GitLab paraîtrait aussi dense qu'une journée à 30 sur GitHub.
 
 ### Pourquoi un token est indispensable
 
@@ -127,7 +134,7 @@ qu'il se remplisse.
 Vérifiez à tout moment ce que GitLab expose :
 
 ```bash
-curl -s https://gitlab.com/users/VOTRE_LOGIN/calendar.json | head -c 300
+curl -s https://gitlab.com/users/hmh_ofc/calendar.json | head -c 300
 ```
 
 Une réponse `{}` signifie que GitLab ne publie rien : le calendrier s'affiche
