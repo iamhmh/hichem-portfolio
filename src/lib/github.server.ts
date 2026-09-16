@@ -1,16 +1,12 @@
 import { z } from "zod";
 
-import {
-  CONTRIBUTION_LEVELS,
-  type GithubData,
-  type Repo,
-} from "./github";
+import type { Level, Repo } from "./activity";
 
 // ---------------------------------------------------------------------------
 // Accès à l'API GitHub. Ce module ne doit JAMAIS être importé depuis un
 // composant : il lit le token dans l'environnement du serveur. Il est chargé
-// dynamiquement par la server function de src/lib/github-fn.ts, ce qui garantit
-// qu'il reste hors du bundle navigateur.
+// dynamiquement depuis portfolio.server.ts, lui-même appelé par une server
+// function — le token reste donc hors du bundle navigateur.
 //
 // Les dépôts épinglés et le calendrier de contributions ne sont exposés que par
 // l'API GraphQL, qui exige une authentification même pour des données
@@ -25,6 +21,23 @@ const TTL_MS = 60 * 60 * 1000; // 1 h
 
 /** Plafond d'attente d'un appel GitHub, pour ne jamais bloquer le rendu indéfiniment. */
 const TIMEOUT_MS = 8_000;
+
+const CONTRIBUTION_LEVELS = [
+  "NONE",
+  "FIRST_QUARTILE",
+  "SECOND_QUARTILE",
+  "THIRD_QUARTILE",
+  "FOURTH_QUARTILE",
+] as const;
+
+/** GitHub fournit déjà les quartiles : on se contente de les projeter sur 0–4. */
+const LEVEL_INTENSITY: Record<(typeof CONTRIBUTION_LEVELS)[number], Level> = {
+  NONE: 0,
+  FIRST_QUARTILE: 1,
+  SECOND_QUARTILE: 2,
+  THIRD_QUARTILE: 3,
+  FOURTH_QUARTILE: 4,
+};
 
 const QUERY = `
 query PortfolioData($login: String!, $pinned: Int!, $topics: Int!) {
@@ -109,7 +122,22 @@ const githubResponseSchema = z.object({
 
 type GithubResponse = z.infer<typeof githubResponseSchema>;
 
-/** Convertit la réponse validée en structure destinée à l'UI. */
+export interface GithubDay {
+  date: string;
+  weekday: number;
+  count: number;
+  level: Level;
+}
+
+export interface GithubData {
+  login: string;
+  repos: Repo[];
+  /** Définit la fenêtre glissante de 12 mois sur laquelle le calendrier est bâti. */
+  weeks: Array<{ days: GithubDay[] }>;
+  total: number;
+  fetchedAt: number;
+}
+
 function normalize(response: GithubResponse, fetchedAt: number): GithubData | null {
   const user = response.data.user;
   if (!user) return null;
@@ -134,17 +162,15 @@ function normalize(response: GithubResponse, fetchedAt: number): GithubData | nu
   return {
     login: user.login,
     repos,
-    contributions: {
-      total: calendar.totalContributions,
-      weeks: calendar.weeks.map((w) => ({
-        days: w.contributionDays.map((d) => ({
-          date: d.date,
-          count: d.contributionCount,
-          level: d.contributionLevel,
-          weekday: d.weekday,
-        })),
+    total: calendar.totalContributions,
+    weeks: calendar.weeks.map((w) => ({
+      days: w.contributionDays.map((d) => ({
+        date: d.date,
+        weekday: d.weekday,
+        count: d.contributionCount,
+        level: LEVEL_INTENSITY[d.contributionLevel],
       })),
-    },
+    })),
     fetchedAt,
   };
 }

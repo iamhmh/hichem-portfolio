@@ -1,5 +1,5 @@
 import { GitFork, Star } from "lucide-react";
-import type { Repo } from "@/lib/github";
+import type { Repo } from "@/lib/activity";
 
 export function ProjectCard({ repo }: { repo: Repo }) {
   return (

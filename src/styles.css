@@ -92,6 +92,14 @@
   --gh-2: oklch(0.7267 0.1781 148.54);
   --gh-3: oklch(0.6270 0.1570 148.35);
   --gh-4: oklch(0.4779 0.1122 150.02);
+  /* Échelle GitLab, bâtie autour de l'orange de marque #fc6d26.
+     --gl-0 est identique à --gh-0 : une case sans activité doit avoir la même
+     neutralité quelle que soit la source. */
+  --gl-0: oklch(0.9454 0.0046 258.32);
+  --gl-1: oklch(0.9233 0.0461 58.73);
+  --gl-2: oklch(0.8305 0.1036 53.38);
+  --gl-3: oklch(0.7017 0.1913 42.95);
+  --gl-4: oklch(0.5392 0.1622 40.52);
   --gradient-primary: linear-gradient(135deg, oklch(0.20 0.02 260), oklch(0.30 0.02 260));
   --gradient-bg: none;
   --shadow-glow: 0 1px 2px oklch(0.18 0.01 260 / 0.06), 0 8px 24px -12px oklch(0.18 0.01 260 / 0.12);
@@ -136,6 +144,12 @@
   --gh-2: oklch(0.4678 0.1263 150.86);
   --gh-3: oklch(0.6365 0.1777 146.24);
   --gh-4: oklch(0.7619 0.2121 145.62);
+  /* Échelle GitLab sombre. */
+  --gl-0: oklch(0.2202 0.0157 256.82);
+  --gl-1: oklch(0.3080 0.0653 46.71);
+  --gl-2: oklch(0.4588 0.1175 48.35);
+  --gl-3: oklch(0.6195 0.1951 37.31);
+  --gl-4: oklch(0.7017 0.1913 42.95);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
