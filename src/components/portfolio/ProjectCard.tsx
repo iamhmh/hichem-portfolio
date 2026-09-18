@@ -1,7 +1,11 @@
 import { GitFork, Star } from "lucide-react";
+
 import type { Repo } from "@/lib/activity";
+import { useContent } from "@/lib/i18n";
 
 export function ProjectCard({ repo }: { repo: Repo }) {
+  const t = useContent();
+
   return (
     <a
       href={repo.url}
@@ -48,16 +52,16 @@ export function ProjectCard({ repo }: { repo: Repo }) {
         {repo.stars > 0 ? (
           <span className="inline-flex items-center gap-1">
             <Star className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="sr-only">Étoiles : </span>
-            {repo.stars.toLocaleString("fr-FR")}
+            <span className="sr-only">{t.repo.stars}</span>
+            {repo.stars.toLocaleString(t.locale)}
           </span>
         ) : null}
 
         {repo.forks > 0 ? (
           <span className="inline-flex items-center gap-1">
             <GitFork className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="sr-only">Forks : </span>
-            {repo.forks.toLocaleString("fr-FR")}
+            <span className="sr-only">{t.repo.forks}</span>
+            {repo.forks.toLocaleString(t.locale)}
           </span>
         ) : null}
       </div>

@@ -1,4 +1,7 @@
+import { useMemo } from "react";
+
 import type { Activity, ActivityDay } from "@/lib/activity";
+import { useContent, type Content } from "@/lib/i18n";
 
 // Les semaines renvoyées par GitHub peuvent être partielles aux deux extrémités
 // (l'année glissante ne commence pas forcément un dimanche). On projette donc
@@ -8,16 +11,6 @@ const DAYS_IN_WEEK = 7;
 /** 13 px au lieu des 11 px de GitHub : en dessous, la coupe diagonale devient illisible. */
 const CELL = 13;
 
-const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-const MONTH_FMT = new Intl.DateTimeFormat("fr-FR", { month: "short" });
-
-/** Libellés de gauche : seules 3 lignes sont annotées, comme sur GitHub. */
-const WEEKDAY_LABELS: Record<number, string> = { 1: "Lun", 3: "Mer", 5: "Ven" };
-
 function toSlots(days: ActivityDay[]): Array<ActivityDay | null> {
   const slots = Array.from<ActivityDay | null>({ length: DAYS_IN_WEEK }).fill(null);
   for (const day of days) {
@@ -26,19 +19,18 @@ function toSlots(days: ActivityDay[]): Array<ActivityDay | null> {
   return slots;
 }
 
-function plural(n: number) {
-  return n > 1 ? "s" : "";
-}
-
-function label(day: ActivityDay, hasGitlab: boolean): string {
-  const date = DATE_FMT.format(new Date(`${day.date}T00:00:00Z`));
+function label(
+  day: ActivityDay,
+  hasGitlab: boolean,
+  t: Content,
+  dateFmt: Intl.DateTimeFormat,
+): string {
+  const date = dateFmt.format(new Date(`${day.date}T00:00:00Z`));
   if (!hasGitlab) {
-    return day.github === 0
-      ? `Aucune contribution le ${date}`
-      : `${day.github} contribution${plural(day.github)} le ${date}`;
+    return day.github === 0 ? t.graph.noneOn(date) : t.graph.countOn(day.github, date);
   }
-  if (day.github === 0 && day.gitlab === 0) return `Aucune contribution le ${date}`;
-  return `${day.github} GitHub · ${day.gitlab} GitLab le ${date}`;
+  if (day.github === 0 && day.gitlab === 0) return t.graph.noneOn(date);
+  return t.graph.bothOn(day.github, day.gitlab, date);
 }
 
 /**
@@ -65,10 +57,12 @@ function cellBackground(day: ActivityDay, hasGitlab: boolean): string {
 }
 
 function Legend({ prefix, token }: { prefix: string; token: "gh" | "gl" }) {
+  const t = useContent();
+
   return (
     <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
       <span className="mr-0.5">{prefix}</span>
-      <span>Moins</span>
+      <span>{t.graph.less}</span>
       {[0, 1, 2, 3, 4].map((level) => (
         <span
           key={level}
@@ -80,7 +74,7 @@ function Legend({ prefix, token }: { prefix: string; token: "gh" | "gl" }) {
           }}
         />
       ))}
-      <span>Plus</span>
+      <span>{t.graph.more}</span>
     </div>
   );
 }
@@ -88,6 +82,23 @@ function Legend({ prefix, token }: { prefix: string; token: "gh" | "gl" }) {
 export function ContributionGraph({ activity }: { activity: Activity }) {
   const { weeks, githubTotal, gitlabTotal, hasGitlab } = activity;
   const total = githubTotal + gitlabTotal;
+  const t = useContent();
+
+  // Dates et nombres suivent la langue affichée, pas la locale du navigateur :
+  // le rendu serveur et le rendu client doivent produire le même texte.
+  const { dateFmt, monthFmt } = useMemo(
+    () => ({
+      dateFmt: new Intl.DateTimeFormat(t.locale, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      monthFmt: new Intl.DateTimeFormat(t.locale, { month: "short" }),
+    }),
+    [t.locale],
+  );
+
+  const num = (value: number) => value.toLocaleString(t.locale);
 
   // Une étiquette de mois est posée sur la première semaine où le mois change.
   const monthLabels = weeks.map((week, i) => {
@@ -97,12 +108,10 @@ export function ContributionGraph({ activity }: { activity: Activity }) {
     if (!prev) return null;
     const month = new Date(`${first.date}T00:00:00Z`).getUTCMonth();
     const prevMonth = new Date(`${prev.date}T00:00:00Z`).getUTCMonth();
-    return month === prevMonth ? null : MONTH_FMT.format(new Date(`${first.date}T00:00:00Z`));
+    return month === prevMonth ? null : monthFmt.format(new Date(`${first.date}T00:00:00Z`));
   });
 
-  const summary = hasGitlab
-    ? `${total.toLocaleString("fr-FR")} contributions sur les 12 derniers mois`
-    : `${githubTotal.toLocaleString("fr-FR")} contributions sur les 12 derniers mois`;
+  const summary = t.graph.summary(num(hasGitlab ? total : githubTotal));
 
   return (
     <figure className="rounded-xl border border-border bg-card p-5 sm:p-6">
@@ -110,11 +119,10 @@ export function ContributionGraph({ activity }: { activity: Activity }) {
         <span className="text-sm font-semibold text-foreground">{summary}</span>
         {hasGitlab ? (
           <span className="text-xs text-muted-foreground">
-            {githubTotal.toLocaleString("fr-FR")} sur GitHub ·{" "}
-            {gitlabTotal.toLocaleString("fr-FR")} sur GitLab
+            {t.graph.split(num(githubTotal), num(gitlabTotal))}
           </span>
         ) : (
-          <span className="text-xs text-muted-foreground">Source : GitHub</span>
+          <span className="text-xs text-muted-foreground">{t.graph.sourceGithub}</span>
         )}
       </figcaption>
 
@@ -129,12 +137,8 @@ export function ContributionGraph({ activity }: { activity: Activity }) {
             aria-hidden="true"
           >
             {Array.from({ length: DAYS_IN_WEEK }, (_, weekday) => (
-              <span
-                key={weekday}
-                className="flex items-center pr-1"
-                style={{ height: CELL }}
-              >
-                {WEEKDAY_LABELS[weekday] ?? ""}
+              <span key={weekday} className="flex items-center pr-1" style={{ height: CELL }}>
+                {t.graph.weekdays[weekday] ?? ""}
               </span>
             ))}
           </div>
@@ -159,8 +163,8 @@ export function ContributionGraph({ activity }: { activity: Activity }) {
               role="img"
               aria-label={
                 hasGitlab
-                  ? `Calendrier de contributions : ${githubTotal} sur GitHub et ${gitlabTotal} sur GitLab au cours des 12 derniers mois`
-                  : `Calendrier de contributions GitHub : ${githubTotal} contributions sur les 12 derniers mois`
+                  ? t.graph.ariaBoth(githubTotal, gitlabTotal)
+                  : t.graph.ariaGithub(githubTotal)
               }
             >
               {weeks.map((week, i) => (
@@ -173,7 +177,7 @@ export function ContributionGraph({ activity }: { activity: Activity }) {
                     day ? (
                       <span
                         key={weekday}
-                        title={label(day, hasGitlab)}
+                        title={label(day, hasGitlab, t, dateFmt)}
                         className="rounded-[2px] ring-1 ring-inset ring-foreground/5"
                         style={{
                           width: CELL,
@@ -203,12 +207,11 @@ export function ContributionGraph({ activity }: { activity: Activity }) {
                 style={{
                   width: CELL,
                   height: CELL,
-                  background:
-                    "linear-gradient(135deg, var(--gh-3) 0 50%, var(--gl-3) 50% 100%)",
+                  background: "linear-gradient(135deg, var(--gh-3) 0 50%, var(--gl-3) 50% 100%)",
                 }}
                 aria-hidden="true"
               />
-              <span>les deux le même jour</span>
+              <span>{t.graph.bothSameDay}</span>
             </div>
             <Legend prefix="GitHub" token="gh" />
             <Legend prefix="GitLab" token="gl" />
