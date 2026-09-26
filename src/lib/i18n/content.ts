@@ -29,7 +29,7 @@ const fr = {
   langShort: "FR",
 
   meta: {
-    title: "Hichem Gouia — AI Engineer",
+    title: "Hichem Gouia - AI Engineer",
     description:
       "AI Engineer à Paris : systèmes d'IA en production, agentic et GenAI, NLP, computer vision, pipelines de données et MLOps.",
     siteName: "Hichem Gouia",
@@ -94,7 +94,7 @@ const fr = {
         highlights: [
           "Mise en production d'un pipeline OCR qui extrait les données comptables et préremplit automatiquement le parcours d'estimation, avec un haut niveau de fiabilité et de disponibilité.",
           "R&D et prototypage de solutions d'IA générative (LLMs, vLLMs) : analyse comparative de modèles open-source (Mistral, Deepseek) pour optimiser le rapport performance/coût, orchestration via LangChain et observabilité instrumentée avec LangFuse.",
-          "Conception d'un pipeline de web-scraping automatisé sur les annonces immobilières — ingestion brute, nettoyage, normalisation, stockage scalable — produisant des jeux de données cohérents pour l'analyse et la modélisation.",
+          "Conception d'un pipeline de web-scraping automatisé sur les annonces immobilières - ingestion brute, nettoyage, normalisation, stockage scalable - produisant des jeux de données cohérents pour l'analyse et la modélisation.",
           "Création d'un module interactif d'analyse géospatiale du marché (pipeline de données, normalisation, visualisation) pour outiller les études de marché locales et la décision produit.",
           "Contribution au développement full-stack et au déploiement de fonctionnalités SaaS (React côté front, PHP côté back), améliorant la cadence de livraison et la fiabilité du produit.",
         ],
@@ -129,7 +129,7 @@ const fr = {
     items: [
       {
         period: "Sept. 2024 – Sept. 2026",
-        role: "Master in Computer Science — Applied AI & Data",
+        role: "Master in Computer Science - Applied AI & Data",
         org: "Epitech Technology",
         note: "Nancy",
         focus:
@@ -221,19 +221,19 @@ const fr = {
     items: [
       {
         title: "Classification automatique de lésions cutanées",
-        kind: "Computer Vision — Recherche",
-        body: "Analyse comparative d'architectures CNN (EfficientNet vs. ResNet) par transfer learning, pour classifier des pathologies cutanées à partir d'imagerie clinique. Pipeline de prétraitement robuste — normalisation de la coloration, augmentation de données avancée — conçu pour corriger le déséquilibre du jeu de données et limiter le surapprentissage.",
+        kind: "Computer Vision - Recherche",
+        body: "Analyse comparative d'architectures CNN (EfficientNet vs. ResNet) par transfer learning, pour classifier des pathologies cutanées à partir d'imagerie clinique. Pipeline de prétraitement robuste - normalisation de la coloration, augmentation de données avancée - conçu pour corriger le déséquilibre du jeu de données et limiter le surapprentissage.",
         tags: ["EfficientNet", "ResNet", "Transfer learning", "Augmentation"],
       },
       {
         title: "NER & modélisation du langage",
-        kind: "NLP — Recherche",
+        kind: "NLP - Recherche",
         body: "Exploration et implémentation d'architectures NLP état de l'art, centrées sur les Transformers et les modèles BERT pour la reconnaissance d'entités nommées. Expérimentations de transfer learning et de fine-tuning pour adapter des modèles pré-entraînés à des corpus de domaine, évaluées sur des métriques rigoureuses, avec un travail de fond sur les mécanismes d'attention et l'étiquetage de séquences.",
         tags: ["Transformers", "BERT", "NER", "Fine-tuning"],
       },
       {
         title: "Extraction de stems audio",
-        kind: "Traitement du signal — Ingénierie",
+        kind: "Traitement du signal - Ingénierie",
         body: "Pipeline d'ingestion automatisé associant analyse spectrale, normalisation audio et prétraitement de la forme d'onde pour optimiser les entrées de l'inférence neuronale. Système d'inférence scalable accéléré par GPU et orchestré en serverless, dimensionné pour traiter des données audio de grande dimension à faible latence.",
         tags: ["Analyse spectrale", "GPU", "Serverless", "Faible latence"],
       },
@@ -245,7 +245,7 @@ const fr = {
     title: "Me contacter.",
     paragraphs: [
       "Je suis ouvert aux échanges sur l'IA en production : agents, GenAI appliquée, pipelines de données et MLOps.",
-      "Une question, un projet, ou simplement l'envie de discuter d'un sujet technique — écrivez-moi, je réponds.",
+      "Une question, un projet, ou simplement l'envie de discuter d'un sujet technique - écrivez-moi, je réponds.",
     ],
     email: "Email",
     linkedin: "LinkedIn",
@@ -304,7 +304,7 @@ const en: Content = {
   langShort: "EN",
 
   meta: {
-    title: "Hichem Gouia — AI Engineer",
+    title: "Hichem Gouia - AI Engineer",
     description:
       "AI Engineer based in Paris: production-grade AI systems, agentic and GenAI, NLP, computer vision, data pipelines and MLOps.",
     siteName: "Hichem Gouia",
@@ -322,11 +322,11 @@ const en: Content = {
   },
 
   hero: {
-    location: "Paris · Île-de-France",
-    status: "AI Solution Engineer at Innovorder from 5 October 2026",
-    title: "I build AI systems that hold up in production.",
+    location: "Paris",
+    status: "AI Solution Engineer",
+    title: "Passionate about AI, computer science and new technologies.",
     intro:
-      "AI Engineer specialising in agentic, GenAI, NLP and computer vision. I design the models as much as the data pipelines and the deployment chain that carry them all the way to users.",
+      "AI Engineer specialising in harness, agentic, GenAI, NLP and computer vision. I design the models as much as the data pipelines and the deployment chain that carry them all the way to users.",
     ctaJourney: "See my background",
     ctaResume: "Download my resume",
     ctaContact: "Get in touch",
@@ -336,13 +336,12 @@ const en: Content = {
     eyebrow: "About",
     title: "Background.",
     paragraphs: [
-      "I'm an AI Engineer based in the Paris region. I design and ship machine learning and generative AI systems, along with the data pipelines that feed them.",
-      "Since January 2024, at EstimerMonCommerce.fr, I shipped a production OCR pipeline, led R&D on open-source LLMs, and built the ingestion and geospatial analysis chains the product runs on. On 5 October 2026 I join Innovorder on a permanent contract as AI Solution Engineer.",
-      "On the academic side: a Master's in Computer Science — Applied AI & Data at Epitech, preceded by a Bachelor's in systems, networking and IT infrastructure. That double grounding explains what interests me most — everything that happens between a model that works in a notebook and a service that holds up in production.",
-      "In 2025 I was a MasterDevFrance finalist in the AI and algorithm hackathons.",
+      "I'm an AI Solution Engineer, currently based in Paris.",
+      "Starting from the business need, I design and ship ML/DL and generative AI systems, along with the data pipelines that feed them.",
+      "Pragmatic by nature, framing what each project actually needs and communicating around it are my main strengths, before writing or deploying any code."
     ],
     awardLabel: "Award",
-    award: "MasterDevFrance 2025 finalist — AI & algorithm hackathons",
+    award: "MasterDevFrance 2025 finalist - AI & algorithm hackathons",
   },
 
   experience: {
@@ -370,7 +369,7 @@ const en: Content = {
         highlights: [
           "Shipped a production-grade OCR pipeline that extracts accounting data and auto-fills the valuation workflow, with high reliability and availability.",
           "Led R&D and prototyping of generative AI solutions (LLMs, vLLMs): comparative analysis of open-source models (Mistral, Deepseek) to optimise the performance/cost ratio, orchestration through LangChain, and model observability instrumented with LangFuse.",
-          "Designed an automated web-scraping ingestion pipeline for real-estate listings — raw ingestion, cleaning, normalisation, scalable storage — producing consistent datasets for analytics and modelling.",
+          "Designed an automated web-scraping ingestion pipeline for real-estate listings - raw ingestion, cleaning, normalisation, scalable storage - producing consistent datasets for analytics and modelling.",
           "Built an interactive geospatial market-analysis module (data pipeline, normalisation, visualisation) to support local market studies and product decision-making.",
           "Contributed to full-stack development and deployment of SaaS features (React on the front end, PHP on the back end), improving delivery cadence and product reliability.",
         ],
@@ -405,7 +404,7 @@ const en: Content = {
     items: [
       {
         period: "Sept. 2024 – Sept. 2026",
-        role: "Master in Computer Science — Applied AI & Data",
+        role: "Master in Computer Science - Applied AI & Data",
         org: "Epitech Technology",
         note: "Nancy",
         focus:
@@ -429,6 +428,18 @@ const en: Content = {
           "Practical projects: automated deployment, system monitoring and small-scale service orchestration.",
         ],
         themes: ["Linux", "Networking", "Python / Bash", "Cloud"],
+      },
+      {
+        period: "Sept. 2021 – Aug. 2022",
+        role: "Bachelor Web and App",
+        org: "CCI des Vosges",
+        note: "Épinal",
+        focus: "An intensive programme on web and application development and architecture.",
+        highlights: [
+          "Core topics: algorithms, full-stack development (front end, back end), deployment, security, design patterns.",
+          "Practical projects: end-to-end delivery of websites (e-commerce site, showcase site, mobile app).",
+        ],
+        themes: ["Front-end", "Back-end", "Javascript", "PHP"],
       },
     ] as TimelineItem[],
   },
@@ -486,19 +497,19 @@ const en: Content = {
     items: [
       {
         title: "Automated Skin Lesion Classification",
-        kind: "Computer Vision — Research",
-        body: "A comparative analysis of CNN architectures (EfficientNet vs. ResNet) using transfer learning to classify skin pathologies from clinical imagery. Engineered a robust preprocessing pipeline — stain normalisation, advanced data augmentation — designed to mitigate dataset imbalance and overfitting.",
+        kind: "Computer Vision - Research",
+        body: "A comparative analysis of CNN architectures (EfficientNet vs. ResNet) using transfer learning to classify skin pathologies from clinical imagery. Engineered a robust preprocessing pipeline - stain normalisation, advanced data augmentation - designed to mitigate dataset imbalance and overfitting.",
         tags: ["EfficientNet", "ResNet", "Transfer learning", "Augmentation"],
       },
       {
         title: "Advanced NER & Language Modeling",
-        kind: "NLP — Research",
+        kind: "NLP - Research",
         body: "Explored and implemented state-of-the-art NLP architectures, focusing on Transformers and BERT-based models for Named Entity Recognition. Ran transfer learning and fine-tuning experiments to adapt pre-trained models to domain-specific datasets, evaluated against rigorous NLP metrics, with deep work on attention mechanisms and sequence labeling.",
         tags: ["Transformers", "BERT", "NER", "Fine-tuning"],
       },
       {
         title: "Audio Stem Extraction",
-        kind: "Signal Processing — Engineering",
+        kind: "Signal Processing - Engineering",
         body: "An automated ingestion pipeline combining spectral analysis, audio normalisation and waveform preprocessing to optimise inputs for neural inference. A scalable, GPU-accelerated inference system orchestrated serverless, sized to handle high-dimensional audio data at low latency.",
         tags: ["Spectral analysis", "GPU", "Serverless", "Low latency"],
       },
@@ -510,7 +521,7 @@ const en: Content = {
     title: "Get in touch.",
     paragraphs: [
       "I'm happy to talk about AI in production: agents, applied GenAI, data pipelines and MLOps.",
-      "A question, a project, or simply the urge to dig into a technical topic — write to me, I answer.",
+      "A question, a project, or simply the urge to dig into a technical topic - write to me, I answer.",
     ],
     email: "Email",
     linkedin: "LinkedIn",
@@ -568,7 +579,7 @@ export const CONTENT: Record<Lang, Content> = { fr, en };
 
 export const SITE_URL = "https://hichemgouia.com";
 
-/** URL absolue de la page d'accueil dans une langue — utilisée par hreflang et le sitemap. */
+/** URL absolue de la page d'accueil dans une langue - utilisée par hreflang et le sitemap. */
 export function urlForLang(lang: Lang): string {
   return lang === DEFAULT_LANG ? `${SITE_URL}/` : `${SITE_URL}/?lang=${lang}`;
 }
