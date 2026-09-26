@@ -63,7 +63,7 @@ const fr = {
     paragraphs: [
       "Je suis AI Solution Engineer, actuellement basé à Paris.",
       "Partant du besoin métier, je conçois et je mets en production des systèmes de ML/DL et d'IA générative, ainsi que les pipelines de données qui les alimentent.",
-      "Pragmatique par nature, le besoin/cadrage de chaque projet et la communication sont mes principales qualités avant de coder et/ou déployer un projet."
+      "Pragmatique par nature, le besoin/cadrage de chaque projet et la communication sont mes principales qualités avant de coder et/ou déployer un projet.",
     ],
     awardLabel: "Distinction",
     award: "Finaliste MasterDevFrance 2025 - hackatons IA & algorithmique",
@@ -215,8 +215,7 @@ const fr = {
       "Quelques travaux de recherche appliquée, puis mon activité des douze derniers mois et mes dépôts publics.",
     researchTitle: "Recherche appliquée",
     openSourceTitle: "Activité et dépôts",
-    openSourceIntro:
-      "Mon activité GitHub et GitLab sur les douze derniers mois, et mes dépôts épinglés.",
+    openSourceIntro: "Mes dépôts épinglés sur GitHub et GitLab.",
     allRepos: "Voir tous mes dépôts",
     items: [
       {
@@ -338,7 +337,7 @@ const en: Content = {
     paragraphs: [
       "I'm an AI Solution Engineer, currently based in Paris.",
       "Starting from the business need, I design and ship ML/DL and generative AI systems, along with the data pipelines that feed them.",
-      "Pragmatic by nature, framing what each project actually needs and communicating around it are my main strengths, before writing or deploying any code."
+      "Pragmatic by nature, framing what each project actually needs and communicating around it are my main strengths, before writing or deploying any code.",
     ],
     awardLabel: "Award",
     award: "MasterDevFrance 2025 finalist - AI & algorithm hackathons",
@@ -491,8 +490,7 @@ const en: Content = {
       "A few pieces of applied research, then my activity over the last twelve months and my public repositories.",
     researchTitle: "Applied research",
     openSourceTitle: "Activity and repositories",
-    openSourceIntro:
-      "My GitHub and GitLab activity over the last twelve months, and my pinned repositories.",
+    openSourceIntro: "My pinned GitHub and GitLab repositories.",
     allRepos: "See all my repositories",
     items: [
       {

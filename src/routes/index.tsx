@@ -78,11 +78,11 @@ function Index() {
   const { portfolio } = Route.useLoaderData();
   const t = useContent();
 
-  // Seul le bloc « activité et dépôts » dépend des API : les projets rédigés
+  // Le calendrier et les dépôts dépendent des API et vivent désormais dans deux
+  // endroits distincts : chacun a donc sa propre garde. Les projets rédigés
   // s'affichent quoi qu'il arrive, donc la section Projets ne disparaît jamais.
-  const hasRepoData = Boolean(
-    portfolio && (portfolio.repos.length > 0 || portfolio.activity.weeks.length > 0),
-  );
+  const activity = portfolio && portfolio.activity.weeks.length > 0 ? portfolio.activity : null;
+  const hasRepos = Boolean(portfolio && portfolio.repos.length > 0);
 
   return (
     <div id="top" className="relative min-h-screen bg-background text-foreground">
@@ -90,7 +90,7 @@ function Index() {
 
       {/* HERO */}
       <section className="relative pt-40 pb-24 sm:pt-48 sm:pb-32">
-        <div className="mx-auto w-full max-w-4xl px-4 sm:px-6">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -105,7 +105,7 @@ function Index() {
               </span>
             </div>
 
-            <h1 className="mt-6 text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            <h1 className="mt-6 max-w-4xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl">
               {t.hero.title}
             </h1>
 
@@ -139,6 +139,17 @@ function Index() {
               </AnchorLink>
             </div>
           </motion.div>
+
+          {activity ? (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
+              className="mt-12"
+            >
+              <ContributionGraph activity={activity} />
+            </motion.div>
+          ) : null}
         </div>
       </section>
 
@@ -201,7 +212,7 @@ function Index() {
           ))}
         </div>
 
-        {portfolio && hasRepoData ? (
+        {portfolio && hasRepos ? (
           <>
             <h3 className="mt-14 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               {t.projects.openSourceTitle}
@@ -210,19 +221,11 @@ function Index() {
               {t.projects.openSourceIntro}
             </p>
 
-            {portfolio.activity.weeks.length > 0 ? (
-              <div className="mt-6">
-                <ContributionGraph activity={portfolio.activity} />
-              </div>
-            ) : null}
-
-            {portfolio.repos.length > 0 ? (
-              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {portfolio.repos.map((repo) => (
-                  <ProjectCard key={repo.name} repo={repo} />
-                ))}
-              </div>
-            ) : null}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {portfolio.repos.map((repo) => (
+                <ProjectCard key={repo.name} repo={repo} />
+              ))}
+            </div>
 
             <div className="mt-8">
               <a
