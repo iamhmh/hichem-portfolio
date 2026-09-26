@@ -1,15 +1,3 @@
-// ---------------------------------------------------------------------------
-// Contenu du site, en français et en anglais.
-//
-// Tout ce que le visiteur lit vit ici : libellés d'interface ET données
-// structurées (parcours, formation, expertise, projets). Les composants ne
-// contiennent aucune chaîne en dur, ce qui garantit qu'aucune section ne peut
-// rester bloquée dans une seule langue.
-//
-// `en` est typé `Content` (= la forme de `fr`) : oublier une clé en anglais
-// casse la compilation plutôt que d'afficher un trou dans la page.
-// ---------------------------------------------------------------------------
-
 export const LANGS = ["fr", "en"] as const;
 
 export type Lang = (typeof LANGS)[number];
@@ -20,7 +8,6 @@ export function isLang(value: unknown): value is Lang {
   return typeof value === "string" && (LANGS as readonly string[]).includes(value);
 }
 
-/** Une entrée de timeline, partagée par les sections Expérience et Formation. */
 export interface TimelineItem {
   period: string;
   role: string;
@@ -60,11 +47,11 @@ const fr = {
   },
 
   hero: {
-    location: "Paris · Île-de-France",
-    status: "AI Solution Engineer chez Innovorder à partir du 5 octobre 2026",
-    title: "Je construis des systèmes d'IA qui tiennent en production.",
+    location: "Paris",
+    status: "AI Solution Engineer",
+    title: "Passionné d'IA, d'informatique et de nouvelles technologies.",
     intro:
-      "AI Engineer spécialisé en agentic, GenAI, NLP et computer vision. Je conçois les modèles autant que les pipelines de données et la chaîne de déploiement qui les amènent jusqu'aux utilisateurs.",
+      "AI Engineer spécialisé en harness, agentic, GenAI, NLP et computer vision. Je conçois les modèles autant que les pipelines de données et la chaîne de déploiement qui les amènent jusqu'aux utilisateurs.",
     ctaJourney: "Voir mon parcours",
     ctaResume: "Télécharger mon CV",
     ctaContact: "Me contacter",
@@ -74,13 +61,12 @@ const fr = {
     eyebrow: "À propos",
     title: "Parcours.",
     paragraphs: [
-      "Je suis AI Engineer, basé en Île-de-France. Je conçois et je mets en production des systèmes de machine learning et d'IA générative, ainsi que les pipelines de données qui les alimentent.",
-      "Depuis janvier 2024, chez EstimerMonCommerce.fr, j'ai livré un pipeline OCR en production, mené la R&D sur les LLMs open-source et construit les chaînes d'ingestion et d'analyse géospatiale qui outillent le produit. Le 5 octobre 2026, je rejoins Innovorder en CDI comme AI Solution Engineer.",
-      "Côté formation, un Master en informatique — IA appliquée & Data à Epitech, précédé d'un Bachelor orienté systèmes, réseaux et infrastructure. Cette double base explique ce qui m'intéresse le plus : ce qui se passe entre un modèle qui marche dans un notebook et un service qui tient en production.",
-      "En 2025, j'ai été finaliste du MasterDevFrance sur les hackatons IA et algorithmique.",
+      "Je suis AI Solution Engineer, actuellement basé à Paris.",
+      "Partant du besoin métier, je conçois et je mets en production des systèmes de ML/DL et d'IA générative, ainsi que les pipelines de données qui les alimentent.",
+      "Pragmatique par nature, le besoin/cadrage de chaque projet et la communication sont mes principales qualités avant de coder et/ou déployer un projet."
     ],
     awardLabel: "Distinction",
-    award: "Finaliste MasterDevFrance 2025 — hackatons IA & algorithmique",
+    award: "Finaliste MasterDevFrance 2025 - hackatons IA & algorithmique",
   },
 
   experience: {
@@ -147,7 +133,7 @@ const fr = {
         org: "Epitech Technology",
         note: "Nancy",
         focus:
-          "Cursus centré sur le développement et le déploiement de bout en bout de systèmes d'IA pour des cas d'usage réels.",
+          "Cursus centré sur le développement et le déploiement de end-to-end de systèmes d'IA pour des cas d'usage réels.",
         highlights: [
           "Cours suivis : machine learning, deep learning, reinforcement learning (Deep Q-Learning), NLP (NER, Transformers/BERT), traitement de la parole et du son.",
           "Focus pratique : transfer learning, fine-tuning de modèles, prétraitement et augmentation de données, métriques d'évaluation, monitoring de modèles et pipelines de déploiement.",
@@ -166,6 +152,18 @@ const fr = {
           "Projets pratiques : déploiement automatisé, supervision système et orchestration de services à petite échelle.",
         ],
         themes: ["Linux", "Réseaux", "Python / Bash", "Cloud"],
+      },
+      {
+        period: "Sept. 2021 – Août 2022",
+        role: "Bachelor Web et App",
+        org: "CCI des Vosges",
+        note: "Épinal",
+        focus: "Formation intensive sur le développement et l'architecture web et applicatif.",
+        highlights: [
+          "Principaux sujets : algorithmie, développement fullstack (front-end, back-end), déploiement, sécurité, design patterns.",
+          "Projets pratiques : Déploiément de sites web end-to-end (site e-commerce, site vitrine, application mobile).",
+        ],
+        themes: ["Front-end", "Back-end", "Javascript", "PHP"],
       },
     ] as TimelineItem[],
   },
