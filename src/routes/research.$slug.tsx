@@ -1,7 +1,8 @@
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Github } from "lucide-react";
 
+import { Figure, MetricChart, StatTiles } from "@/components/portfolio/ArticleFigures";
 import { LanguageToggle } from "@/components/portfolio/LanguageToggle";
 import {
   CONTENT,
@@ -157,6 +158,27 @@ function ResearchArticle() {
               ))}
             </div>
           ) : null}
+
+          <a
+            href={project.article.repo.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="group mt-8 flex items-start gap-3 rounded-xl border border-border bg-card p-4 transition hover:border-foreground/30"
+          >
+            <Github className="mt-0.5 h-5 w-5 shrink-0 text-foreground" aria-hidden="true" />
+            <span className="min-w-0">
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                {project.article.repo.name}
+                <ArrowRight
+                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </span>
+              <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                {project.article.repo.blurb}
+              </span>
+            </span>
+          </a>
         </motion.div>
 
         <motion.article
@@ -175,6 +197,14 @@ function ResearchArticle() {
                   {paragraph}
                 </p>
               ))}
+
+              {section.figures?.map((figure) => (
+                <Figure key={figure.src} figure={figure} />
+              ))}
+
+              {section.chart ? <MetricChart chart={section.chart} /> : null}
+
+              {section.stats ? <StatTiles stats={section.stats} /> : null}
             </section>
           ))}
         </motion.article>

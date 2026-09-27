@@ -17,6 +17,53 @@ export function isLang(value: unknown): value is Lang {
  * pas avec la langue, seul le `?lang=` s'ajoute. Une traduction manquante
  * casserait donc le lien, ce que le typage de `en` empêche.
  */
+/** Image produite par le projet, servie depuis `public/research/<slug>/`. */
+export interface ArticleFigure {
+  src: string;
+  alt: string;
+  caption: string;
+  /** Dimensions intrinsèques du fichier, pour réserver la place au chargement. */
+  width: number;
+  height: number;
+}
+
+/** Une mesure et sa référence, dans la même unité. */
+export interface ArticleMetric {
+  label: string;
+  baseline: number;
+  value: number;
+}
+
+/**
+ * Comparaison référence / modèle. Toutes les mesures d'un même graphe partagent
+ * l'unité et l'échelle : deux grandeurs incomparables font deux graphes.
+ */
+export interface ArticleChart {
+  title: string;
+  unit: string;
+  /** Borne haute de l'axe, commune aux deux séries. */
+  max: number;
+  baselineLabel: string;
+  valueLabel: string;
+  metrics: ArticleMetric[];
+  /** Provenance des chiffres, affichée sous le graphe. */
+  source: string;
+}
+
+/** Chiffre isolé, plus lisible en grand qu'en barre. */
+export interface ArticleStat {
+  value: string;
+  label: string;
+}
+
+export interface ArticleSection {
+  heading: string;
+  paragraphs: string[];
+  figures?: ArticleFigure[];
+  chart?: ArticleChart;
+  stats?: ArticleStat[];
+}
+
 export interface ResearchProject {
   slug: string;
   title: string;
@@ -30,7 +77,9 @@ export interface ResearchProject {
     metaDescription: string;
     /** Chapô, sous le titre. */
     lede: string;
-    sections: Array<{ heading: string; paragraphs: string[] }>;
+    /** Dépôt où vit le code du projet. */
+    repo: { url: string; name: string; blurb: string };
+    sections: ArticleSection[];
   };
 }
 
@@ -256,6 +305,12 @@ const fr = {
           metaDescription:
             "Analyse comparative EfficientNet / ResNet par transfer learning pour la classification de lésions cutanées : cadrage du problème, normalisation de la coloration, augmentation de données et traitement du déséquilibre.",
           lede: "Comparer deux familles de réseaux convolutifs sur de l'imagerie clinique, c'est surtout découvrir que l'architecture n'est pas la variable la plus importante. Voici le cheminement, du cadrage du problème au pipeline de prétraitement.",
+          repo: {
+            url: "https://github.com/iamhmh/derm-cnn-ham10000",
+            name: "iamhmh/derm-cnn-ham10000",
+            blurb:
+              "Le code, les poids entraînés, le carnet d'entraînement et le rapport de classification complet.",
+          },
           sections: [
             {
               heading: "Le problème posé",
@@ -288,6 +343,49 @@ const fr = {
               ],
             },
             {
+              heading: "Ce que donne le modèle publié",
+              paragraphs: [
+                "Le dépôt publie l'aboutissement de ce travail : un CNN compact - quatre blocs convolutifs suivis de cinq couches denses - entraîné sur HAM10000 et ses sept catégories de lésions, entrées ramenées à 28×28. Sur le découpage d'évaluation, il atteint 0,99 d'exactitude et 0,99 de F1 macro.",
+                "Les courbes d'entraînement racontent mieux l'histoire que le score final. La précision de validation décroche brutalement à la sixième époque - de 95 % à 74 %, avec le pic de perte correspondant - avant de remonter et de se stabiliser autour de 98,7 %. Un creux isolé de cette forme signale un pas d'apprentissage trop agressif sur une fonction de coût accidentée, pas un problème de données. L'écart final entre entraînement et validation, 100 % contre 98,7 %, est le surapprentissage résiduel dont on ne se débarrasse pas complètement sur un jeu de cette taille.",
+              ],
+              figures: [
+                {
+                  src: "/research/skin-lesion-classification/training-curves.png",
+                  alt: "Deux graphiques côte à côte : précision et perte, sur 25 époques, pour l'entraînement et la validation.",
+                  caption:
+                    "Précision et perte sur 25 époques. Le décrochage de la validation à l'époque 6 se résorbe en deux époques ; l'écart résiduel entre les deux courbes est le surapprentissage qui reste.",
+                  width: 1500,
+                  height: 600,
+                },
+              ],
+            },
+            {
+              heading: "Là où la moyenne ment",
+              paragraphs: [
+                "La matrice de confusion confirme le point de méthode. Six classes sur sept sont quasiment parfaites ; le mélanome décroche, à 0,93 de rappel - 67 cas classés en lésions vasculaires, 34 en kératoses bénignes, 13 en carcinomes basocellulaires. C'est exactement la classe sur laquelle une erreur coûte le plus cher, et celle qu'un score global de 0,99 rend invisible.",
+                "Un point d'honnêteté pour finir : les sept classes comptent environ 1 650 exemples chacune dans cette matrice, là où HAM10000 est nativement très déséquilibré. Le jeu d'évaluation a donc été rééquilibré, ce qui rend le 0,99 plus flatteur qu'il ne le serait sur la distribution réelle. C'est aussi pour cela que le modèle ne doit pas servir à poser un diagnostic.",
+              ],
+              figures: [
+                {
+                  src: "/research/skin-lesion-classification/confusion-matrix.png",
+                  alt: "Matrice de confusion 7×7 sur les classes akiec, bcc, bkl, df, mel, nv et vasc ; la diagonale est nette, la ligne du mélanome porte l'essentiel des erreurs.",
+                  caption:
+                    "Matrice de confusion sur le jeu d'évaluation. La diagonale est nette partout sauf sur la ligne « mel » : le mélanome concentre à lui seul la quasi-totalité des erreurs.",
+                  width: 1500,
+                  height: 1200,
+                },
+              ],
+              stats: [
+                { value: "0,99", label: "Exactitude et F1 macro sur le jeu d'évaluation" },
+                {
+                  value: "0,93",
+                  label: "Rappel sur le mélanome, la classe la plus coûteuse à manquer",
+                },
+                { value: "7", label: "Catégories de lésions prédites" },
+                { value: "28×28", label: "Résolution d'entrée du modèle publié" },
+              ],
+            },
+            {
               heading: "Ce que ce travail m'a appris",
               paragraphs: [
                 "Le réflexe, sur ce type de problème, est de chercher l'architecture qui gagne. L'expérience mène ailleurs : à jeu de données constant, le pipeline de prétraitement et la manière de traiter le déséquilibre déplacent les résultats davantage que le passage d'une famille de réseaux à l'autre.",
@@ -307,12 +405,26 @@ const fr = {
           metaDescription:
             "Reconnaissance d'entités nommées avec des Transformers et des modèles BERT : étiquetage de séquences, mécanismes d'attention, fine-tuning sur corpus de domaine et protocole d'évaluation.",
           lede: "Des Transformers à la reconnaissance d'entités nommées : comment adapter un modèle pré-entraîné généraliste à un vocabulaire de domaine, et pourquoi l'évaluation est la partie la plus délicate.",
+          repo: {
+            url: "https://github.com/iamhmh/train_order_resolver",
+            name: "iamhmh/train_order_resolver",
+            blurb:
+              "Le pipeline complet : génération du jeu de données, modèles CamemBERT, recherche d'itinéraire, API et interface.",
+          },
           sections: [
             {
               heading: "Reconnaître une entité, c'est étiqueter une séquence",
               paragraphs: [
                 "La reconnaissance d'entités nommées consiste à repérer, dans un texte, les fragments qui désignent quelque chose de précis - une personne, une organisation, un lieu, une date - et à leur attribuer un type. Formellement, ce n'est pas une classification de phrases : c'est un étiquetage de séquence, une décision par token, avec une contrainte de cohérence entre tokens voisins.",
                 "D'où le schéma d'annotation BIO, qui distingue le début d'une entité de sa suite et du reste du texte. La distinction paraît anodine ; elle est pourtant ce qui permet au modèle de reconnaître deux entités adjacentes comme deux entités, et non comme une seule.",
+              ],
+            },
+            {
+              heading: "Le terrain : des requêtes de trajet en français",
+              paragraphs: [
+                "Le projet sur lequel j'ai poussé ce travail transforme une phrase libre en français - « je voudrais aller d'Épinal à Paris » - en itinéraire ferroviaire sur le réseau SNCF. Il faut donc extraire deux entités, la gare de départ et celle d'arrivée, puis chercher le trajet.",
+                "Dit comme ça, une expression régulière semble suffire. Elle ne tient pas trois phrases. L'ordre des mots change (« de X à Y », « à Y depuis X ») ; l'élision colle la préposition au nom (« d'Épinal ») ; des villes portent des noms de personnes (Albert, Florence) ou sont composées de mots courants (Port-Boulet) ; et les utilisateurs écrivent sans accents, avec des fautes et une casse quelconque. Chaque règle ajoutée pour rattraper un cas en casse un autre.",
+                "C'est précisément la situation où un modèle de langue vaut mieux qu'un jeu de règles : il n'a pas besoin qu'on lui énumère les gares, il apprend la forme d'une phrase de trajet.",
               ],
             },
             {
@@ -326,8 +438,9 @@ const fr = {
             {
               heading: "Du modèle pré-entraîné au modèle de domaine",
               paragraphs: [
-                "BERT arrive pré-entraîné sur un corpus généraliste, avec une connaissance solide de la langue et aucune connaissance du domaine visé. Le fine-tuning consiste à poursuivre l'entraînement sur un corpus spécialisé, une tête de classification par token posée sur le modèle.",
-                "Les décisions qui comptent à ce stade sont peu nombreuses mais structurantes : le taux d'apprentissage - trop élevé, il efface ce que le pré-entraînement avait acquis ; le nombre d'époques, qu'un corpus de domaine restreint sature vite ; et le traitement de la segmentation en sous-mots, puisque le tokenizer découpe les termes techniques en morceaux et qu'il faut décider comment réaligner les étiquettes sur les mots d'origine.",
+                "Le modèle de base est CamemBERT, 110 millions de paramètres, pré-entraîné sur du français : il arrive avec une connaissance solide de la langue et aucune connaissance du domaine visé. Le fine-tuning consiste à poursuivre l'entraînement sur un corpus spécialisé, une tête de classification par token posée sur le modèle.",
+                "Le corpus, je l'ai généré : 546 patrons de phrases croisés avec 8 973 communes françaises, soit 105 474 phrases, dont j'ai tiré 12 000 exemples pour l'intention et 6 000 pour les entités, annotés en BIO. Sept stratégies d'augmentation - minuscules, suppression des accents, fautes de frappe, ponctuation, casse aléatoire et combinaisons - reproduisent la façon dont les gens écrivent réellement une requête.",
+                "Les décisions qui comptent ensuite sont peu nombreuses mais structurantes : le taux d'apprentissage - 5×10⁻⁵ ici ; trop élevé, il efface ce que le pré-entraînement avait acquis ; le nombre d'époques, qu'un corpus de domaine sature vite, trois ont suffi, le F1 de validation passant de 94,75 % à 96,20 % puis 96,81 % ; et le traitement de la segmentation en sous-mots, puisque le tokenizer découpe les noms de gares en morceaux et qu'il faut décider comment réaligner les étiquettes sur les mots d'origine.",
               ],
             },
             {
@@ -338,9 +451,45 @@ const fr = {
               ],
             },
             {
+              heading: "Les chiffres, face au système à base de règles",
+              paragraphs: [
+                "J'avais d'abord construit une référence honnête : TF-IDF pour l'intention, expressions régulières pour les entités. C'est ce qui rend la comparaison lisible - l'écart mesure ce que le modèle de langue apporte vraiment, pas ce qu'il apporte face à rien.",
+                "L'extraction exacte des deux gares passe de 33,3 % à 80,7 %. La similarité sur la gare d'arrivée, le point le plus faible du système à base de règles, double presque : 43,6 % à 92,1 %. L'écart y est plus grand que sur le départ, et pour une raison simple : la gare de départ suit le plus souvent une préposition régulière, l'arrivée non.",
+                "Le prix est une latence par phrase qui passe de 0,045 ms à 18,3 ms, soit un facteur 400. Sur une requête interactive dont le pipeline complet tient en 100 millisecondes, recherche d'itinéraire comprise, c'est un prix qu'on paie sans réfléchir - mais il fallait le mesurer plutôt que le supposer.",
+              ],
+              chart: {
+                title: "Système à base de règles contre CamemBERT, sur le même jeu de test",
+                unit: " %",
+                max: 100,
+                baselineLabel: "Référence (TF-IDF + regex)",
+                valueLabel: "CamemBERT affiné",
+                metrics: [
+                  { label: "Exactitude de l'intention", baseline: 60.3, value: 99.8 },
+                  { label: "Extraction exacte des entités", baseline: 33.3, value: 80.7 },
+                  { label: "Similarité - gare de départ", baseline: 70.4, value: 92.9 },
+                  { label: "Similarité - gare d'arrivée", baseline: 43.6, value: 92.1 },
+                ],
+                source:
+                  "Chiffres mesurés sur le jeu de test du projet et publiés dans le dépôt. La latence, 0,045 ms contre 18,3 ms par phrase, n'est pas représentée ici : elle ne partage ni l'unité ni l'échelle.",
+              },
+              stats: [
+                { value: "96,81 %", label: "F1 macro du modèle d'entités, après trois époques" },
+                {
+                  value: "~100 ms",
+                  label: "Latence du pipeline complet, recherche d'itinéraire comprise",
+                },
+                {
+                  value: "105 474",
+                  label: "Phrases générées à partir de 546 patrons et 8 973 communes",
+                },
+                { value: "3 497", label: "Gares du graphe SNCF, reliées par 10 770 liaisons" },
+              ],
+            },
+            {
               heading: "Ce que j'en retiens",
               paragraphs: [
                 "Le fine-tuning d'un modèle pré-entraîné est rapide à mettre en œuvre et trompeusement facile à mal faire. L'essentiel du travail ne porte pas sur le modèle mais sur ce qui l'entoure : la qualité et la cohérence des annotations, l'alignement des étiquettes après tokenisation, et un protocole d'évaluation qui ne s'auto-félicite pas.",
+                "L'autre enseignement est qu'une référence construite sérieusement vaut mieux qu'un bon score isolé. Sans les 33,3 % du système à base de règles, les 80,7 % du modèle ne veulent rien dire.",
               ],
             },
           ],
@@ -356,6 +505,12 @@ const fr = {
           metaDescription:
             "Pipeline d'extraction de stems audio : analyse spectrale, normalisation, prétraitement de la forme d'onde, inférence accélérée par GPU et orchestration serverless à faible latence.",
           lede: "Séparer les pistes d'un morceau demande autant de travail sur le signal que sur le modèle - et autant sur l'infrastructure qui le sert. Voici comment j'ai construit le pipeline, de la forme d'onde à l'inférence serverless.",
+          repo: {
+            url: "https://github.com/iamhmh/stemx",
+            name: "iamhmh/stemx",
+            blurb:
+              "L'API, le worker, le handler GPU serverless et l'interface, dans un seul dépôt.",
+          },
           sections: [
             {
               heading: "Un problème de signal avant d'être un problème de modèle",
@@ -382,9 +537,21 @@ const fr = {
             {
               heading: "Servir l'inférence",
               paragraphs: [
-                "Un spectrogramme est un tenseur dense et la séparation de sources est un calcul lourd : le GPU n'est pas une optimisation, c'est la condition pour rester sous un temps de réponse acceptable.",
-                "L'orchestration serverless répond à un autre problème : la charge est intermittente. Des pics quand des fichiers arrivent, rien entre deux. Un GPU réservé en permanence coûterait cher à ne rien faire ; un dimensionnement à la demande fait porter le coût sur le traitement réel, au prix d'un démarrage à froid qu'il faut contenir.",
-                "Le découpage du morceau en segments traités en parallèle, puis recombinés, est ce qui permet de tenir la latence sur des fichiers longs - à condition de prévoir un recouvrement entre segments pour que les raccords ne s'entendent pas.",
+                "Le modèle retenu est BS-Roformer, un transformer qui découpe le spectre en bandes et applique l'attention à l'intérieur de chacune : il exploite exactement la structure fréquentielle décrite plus haut. Un spectrogramme est un tenseur dense et la séparation de sources est un calcul lourd, donc le GPU n'est pas une optimisation mais la condition pour rester sous un temps de réponse acceptable.",
+                "L'orchestration serverless répond à un autre problème : la charge est intermittente. Des pics quand des fichiers arrivent, rien entre deux. Un GPU réservé en permanence coûterait cher à ne rien faire. L'inférence tourne donc sur des workers RunPod dimensionnés à la demande, zéro worker actif au repos, trois au maximum, cinq secondes d'inactivité avant extinction. Le coût suit le traitement réel, au prix d'un démarrage à froid qu'il faut contenir.",
+                "Le reste de la chaîne est découplé pour la même raison : l'API valide et dépose le fichier, un worker séparé prend les tâches en attente et appelle le GPU, les stems repartent vers le stockage. Aucun composant n'attend un autre en tenant une connexion ouverte, ce qui rend les pics absorbables.",
+              ],
+              stats: [
+                {
+                  value: "0 → 3",
+                  label: "Workers GPU : aucun au repos, trois au plus sous charge",
+                },
+                { value: "A40", label: "GPU retenu pour l'inférence, 48 Go de mémoire" },
+                { value: "5 s", label: "Inactivité avant extinction d'un worker" },
+                {
+                  value: "BS-Roformer",
+                  label: "Modèle de séparation, attention par bande de fréquences",
+                },
               ],
             },
             {
@@ -673,6 +840,12 @@ const en: Content = {
           metaDescription:
             "A comparative EfficientNet / ResNet analysis using transfer learning for skin lesion classification: framing the problem, stain normalisation, data augmentation and handling class imbalance.",
           lede: "Comparing two families of convolutional networks on clinical imagery mostly teaches you that the architecture is not the variable that matters most. Here is the path I took, from framing the problem to the preprocessing pipeline.",
+          repo: {
+            url: "https://github.com/iamhmh/derm-cnn-ham10000",
+            name: "iamhmh/derm-cnn-ham10000",
+            blurb:
+              "The code, the trained weights, the training notebook and the full classification report.",
+          },
           sections: [
             {
               heading: "The problem",
@@ -705,6 +878,46 @@ const en: Content = {
               ],
             },
             {
+              heading: "What the published model does",
+              paragraphs: [
+                "The repository publishes where this work landed: a compact CNN - four convolutional blocks followed by five dense layers - trained on HAM10000 and its seven lesion categories, with inputs resized to 28×28. On the evaluation split it reaches 0.99 accuracy and 0.99 macro F1.",
+                "The training curves tell the story better than the final score does. Validation accuracy drops sharply at the sixth epoch - from 95% to 74%, with the matching loss spike - before recovering and settling around 98.7%. An isolated dip of that shape points to a learning rate too aggressive for a rugged loss surface, not to a data problem. The final gap between training and validation, 100% against 98.7%, is the residual overfitting you never fully shake off on a dataset this size.",
+              ],
+              figures: [
+                {
+                  src: "/research/skin-lesion-classification/training-curves.png",
+                  alt: "Two side-by-side plots: accuracy and loss over 25 epochs, for training and validation.",
+                  caption:
+                    "Accuracy and loss over 25 epochs. The validation dip at epoch 6 resolves within two epochs; the residual gap between the two curves is the overfitting that remains.",
+                  width: 1500,
+                  height: 600,
+                },
+              ],
+            },
+            {
+              heading: "Where the average lies",
+              paragraphs: [
+                "The confusion matrix confirms the methodological point. Six classes out of seven are near-perfect; melanoma falls behind at 0.93 recall - 67 cases classified as vascular lesions, 34 as benign keratoses, 13 as basal cell carcinomas. That is precisely the class where an error costs the most, and the one a global 0.99 renders invisible.",
+                "One point of honesty to close on: the seven classes hold roughly 1,650 examples each in this matrix, whereas HAM10000 is natively very imbalanced. The evaluation set was therefore rebalanced, which makes 0.99 more flattering than it would be on the real distribution. That is also why the model must not be used to make a diagnosis.",
+              ],
+              figures: [
+                {
+                  src: "/research/skin-lesion-classification/confusion-matrix.png",
+                  alt: "A 7×7 confusion matrix over classes akiec, bcc, bkl, df, mel, nv and vasc; the diagonal is clean, and the melanoma row carries most of the errors.",
+                  caption:
+                    'Confusion matrix on the evaluation set. The diagonal is clean everywhere except on the "mel" row: melanoma alone concentrates nearly all the errors.',
+                  width: 1500,
+                  height: 1200,
+                },
+              ],
+              stats: [
+                { value: "0.99", label: "Accuracy and macro F1 on the evaluation split" },
+                { value: "0.93", label: "Recall on melanoma, the costliest class to miss" },
+                { value: "7", label: "Lesion categories predicted" },
+                { value: "28×28", label: "Input resolution of the published model" },
+              ],
+            },
+            {
               heading: "What this work taught me",
               paragraphs: [
                 "The reflex on this kind of problem is to hunt for the winning architecture. Experience leads elsewhere: with the dataset held constant, the preprocessing pipeline and the way imbalance is handled move results more than switching from one family of networks to another.",
@@ -724,12 +937,26 @@ const en: Content = {
           metaDescription:
             "Named Entity Recognition with Transformers and BERT-based models: sequence labeling, attention mechanisms, fine-tuning on domain corpora and a serious evaluation protocol.",
           lede: "From Transformers to Named Entity Recognition: how you adapt a general-purpose pre-trained model to a domain vocabulary, and why evaluation is the trickiest part.",
+          repo: {
+            url: "https://github.com/iamhmh/train_order_resolver",
+            name: "iamhmh/train_order_resolver",
+            blurb:
+              "The whole pipeline: dataset generation, the CamemBERT models, pathfinding, the API and the front end.",
+          },
           sections: [
             {
               heading: "Recognising an entity is labeling a sequence",
               paragraphs: [
                 "Named Entity Recognition means spotting, inside a text, the fragments that designate something specific - a person, an organisation, a place, a date - and assigning each a type. Formally it is not sentence classification: it is sequence labeling, one decision per token, with a consistency constraint between neighbouring tokens.",
                 "Hence the BIO annotation scheme, which separates the beginning of an entity from its continuation and from the rest of the text. The distinction looks trivial; it is what lets the model recognise two adjacent entities as two entities rather than one.",
+              ],
+            },
+            {
+              heading: "The ground: French travel queries",
+              paragraphs: [
+                'The project I pushed this work through turns a free-form French sentence - "je voudrais aller d\'Épinal à Paris" - into a rail itinerary on the SNCF network. So two entities have to be extracted, the departure station and the arrival one, before any route can be searched.',
+                'Put that way, a regular expression sounds like enough. It does not survive three sentences. Word order moves around ("de X à Y", "à Y depuis X"); elision glues the preposition to the name ("d\'Épinal"); some towns carry people\'s names (Albert, Florence) or are built from common words (Port-Boulet); and users write without accents, with typos and in whatever casing. Every rule added to catch one case breaks another.',
+                "This is exactly the situation where a language model beats a rule set: it does not need the stations enumerated for it, it learns the shape of a travel sentence.",
               ],
             },
             {
@@ -743,8 +970,9 @@ const en: Content = {
             {
               heading: "From pre-trained model to domain model",
               paragraphs: [
-                "BERT arrives pre-trained on a general-purpose corpus, with a solid grasp of the language and no knowledge whatsoever of the target domain. Fine-tuning means continuing training on a specialised corpus, with a per-token classification head placed on top of the model.",
-                "The decisions that matter at this stage are few but structural: the learning rate - too high and it erases what pre-training acquired; the number of epochs, which a small domain corpus saturates quickly; and how to handle subword segmentation, since the tokenizer splits technical terms into pieces and you have to decide how to realign labels onto the original words.",
+                "The base model is CamemBERT, 110 million parameters, pre-trained on French: it arrives with a solid grasp of the language and no knowledge whatsoever of the target domain. Fine-tuning means continuing training on a specialised corpus, with a per-token classification head placed on top of the model.",
+                "I generated the corpus: 546 sentence templates crossed with 8,973 French towns, giving 105,474 sentences, from which I drew 12,000 intent examples and 6,000 entity examples annotated in BIO. Seven augmentation strategies - lowercasing, accent stripping, typos, punctuation, random casing and combinations - reproduce how people actually type a query.",
+                "The decisions that matter next are few but structural: the learning rate - 5×10⁻⁵ here; too high and it erases what pre-training acquired; the number of epochs, which a domain corpus saturates quickly, three were enough, with validation F1 going from 94.75% to 96.20% and then 96.81%; and how to handle subword segmentation, since the tokenizer splits station names into pieces and you have to decide how to realign labels onto the original words.",
               ],
             },
             {
@@ -755,9 +983,45 @@ const en: Content = {
               ],
             },
             {
+              heading: "The numbers, against the rule-based system",
+              paragraphs: [
+                "I had first built an honest baseline: TF-IDF for intent, regular expressions for entities. That is what makes the comparison readable - the gap measures what the language model genuinely adds, not what it adds over nothing at all.",
+                "Exact extraction of both stations goes from 33.3% to 80.7%. Similarity on the arrival station, the rule-based system's weakest point, nearly doubles: 43.6% to 92.1%. The gap is wider there than on departure, for a simple reason: the departure station usually follows a regular preposition, the arrival one does not.",
+                "The price is a per-sentence latency going from 0.045 ms to 18.3 ms, a factor of 400. On an interactive query whose full pipeline fits in 100 milliseconds, pathfinding included, that is a price you pay without thinking - but it had to be measured rather than assumed.",
+              ],
+              chart: {
+                title: "Rule-based system against CamemBERT, on the same test set",
+                unit: "%",
+                max: 100,
+                baselineLabel: "Baseline (TF-IDF + regex)",
+                valueLabel: "Fine-tuned CamemBERT",
+                metrics: [
+                  { label: "Intent accuracy", baseline: 60.3, value: 99.8 },
+                  { label: "Exact entity extraction", baseline: 33.3, value: 80.7 },
+                  { label: "Similarity - departure station", baseline: 70.4, value: 92.9 },
+                  { label: "Similarity - arrival station", baseline: 43.6, value: 92.1 },
+                ],
+                source:
+                  "Figures measured on the project's test set and published in the repository. Latency, 0.045 ms against 18.3 ms per sentence, is not plotted here: it shares neither the unit nor the scale.",
+              },
+              stats: [
+                { value: "96.81%", label: "Macro F1 of the entity model, after three epochs" },
+                { value: "~100 ms", label: "Full pipeline latency, pathfinding included" },
+                {
+                  value: "105,474",
+                  label: "Sentences generated from 546 templates and 8,973 towns",
+                },
+                {
+                  value: "3,497",
+                  label: "Stations in the SNCF graph, joined by 10,770 connections",
+                },
+              ],
+            },
+            {
               heading: "What I take away",
               paragraphs: [
                 "Fine-tuning a pre-trained model is quick to set up and deceptively easy to get wrong. Most of the work is not about the model but about what surrounds it: the quality and consistency of the annotations, label alignment after tokenisation, and an evaluation protocol that does not congratulate itself.",
+                "The other lesson is that a seriously built baseline beats a good score on its own. Without the rule-based system's 33.3%, the model's 80.7% means nothing.",
               ],
             },
           ],
@@ -773,6 +1037,12 @@ const en: Content = {
           metaDescription:
             "An audio stem extraction pipeline: spectral analysis, normalisation, waveform preprocessing, GPU-accelerated inference and serverless orchestration at low latency.",
           lede: "Separating the tracks of a song takes as much work on the signal as on the model - and as much again on the infrastructure that serves it. Here is how I built the pipeline, from waveform to serverless inference.",
+          repo: {
+            url: "https://github.com/iamhmh/stemx",
+            name: "iamhmh/stemx",
+            blurb:
+              "The API, the worker, the serverless GPU handler and the front end, in a single repository.",
+          },
           sections: [
             {
               heading: "A signal problem before it is a model problem",
@@ -799,9 +1069,18 @@ const en: Content = {
             {
               heading: "Serving inference",
               paragraphs: [
-                "A spectrogram is a dense tensor and source separation is heavy compute: the GPU is not an optimisation, it is the condition for staying under an acceptable response time.",
-                "Serverless orchestration answers a different problem: the load is intermittent. Spikes when files arrive, nothing in between. A permanently reserved GPU would be expensive idle time; sizing on demand puts the cost on actual processing, at the price of a cold start you have to keep in check.",
-                "Splitting the track into segments processed in parallel, then recombined, is what keeps latency in hand on long files - provided you plan an overlap between segments so the joins cannot be heard.",
+                "The model in use is BS-Roformer, a transformer that splits the spectrum into bands and applies attention inside each one: it exploits precisely the frequency structure described above. A spectrogram is a dense tensor and source separation is heavy compute, so the GPU is not an optimisation but the condition for staying under an acceptable response time.",
+                "Serverless orchestration answers a different problem: the load is intermittent. Spikes when files arrive, nothing in between. A permanently reserved GPU would be expensive idle time. Inference therefore runs on RunPod workers sized on demand, zero active workers at rest, three at most, five seconds of idling before shutdown. Cost follows actual processing, at the price of a cold start you have to keep in check.",
+                "The rest of the chain is decoupled for the same reason: the API validates and stores the file, a separate worker picks up pending jobs and calls the GPU, the stems go back to storage. No component waits on another while holding a connection open, which is what makes the spikes absorbable.",
+              ],
+              stats: [
+                { value: "0 → 3", label: "GPU workers: none at rest, three at most under load" },
+                { value: "A40", label: "GPU chosen for inference, 48 GB of memory" },
+                { value: "5 s", label: "Idle time before a worker shuts down" },
+                {
+                  value: "BS-Roformer",
+                  label: "Separation model, attention within frequency bands",
+                },
               ],
             },
             {
