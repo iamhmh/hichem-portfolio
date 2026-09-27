@@ -78,11 +78,12 @@ function Index() {
   const { portfolio } = Route.useLoaderData();
   const t = useContent();
 
-  // Le calendrier et les dépôts dépendent des API et vivent désormais dans deux
-  // endroits distincts : chacun a donc sa propre garde. Les projets rédigés
+  // Le calendrier est affiché deux fois — en tête de page pour être vu tout de
+  // suite, puis dans la section Projets où il introduit les dépôts — donc il a
+  // sa propre garde, indépendante de celle des dépôts. Les projets rédigés
   // s'affichent quoi qu'il arrive, donc la section Projets ne disparaît jamais.
   const activity = portfolio && portfolio.activity.weeks.length > 0 ? portfolio.activity : null;
-  const hasRepos = Boolean(portfolio && portfolio.repos.length > 0);
+  const hasRepoData = Boolean(activity || (portfolio && portfolio.repos.length > 0));
 
   return (
     <div id="top" className="relative min-h-screen bg-background text-foreground">
@@ -202,17 +203,11 @@ function Index() {
         </h3>
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
           {t.projects.items.map((project) => (
-            <ResearchProjectCard
-              key={project.title}
-              title={project.title}
-              kind={project.kind}
-              body={project.body}
-              tags={project.tags}
-            />
+            <ResearchProjectCard key={project.slug} project={project} />
           ))}
         </div>
 
-        {portfolio && hasRepos ? (
+        {portfolio && hasRepoData ? (
           <>
             <h3 className="mt-14 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               {t.projects.openSourceTitle}
@@ -221,11 +216,19 @@ function Index() {
               {t.projects.openSourceIntro}
             </p>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {portfolio.repos.map((repo) => (
-                <ProjectCard key={repo.name} repo={repo} />
-              ))}
-            </div>
+            {activity ? (
+              <div className="mt-6">
+                <ContributionGraph activity={activity} />
+              </div>
+            ) : null}
+
+            {portfolio.repos.length > 0 ? (
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {portfolio.repos.map((repo) => (
+                  <ProjectCard key={repo.name} repo={repo} />
+                ))}
+              </div>
+            ) : null}
 
             <div className="mt-8">
               <a

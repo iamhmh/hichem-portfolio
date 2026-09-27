@@ -7,11 +7,16 @@ export {
   DEFAULT_LANG,
   LANGS,
   LINKS,
+  RESEARCH_SLUGS,
   SITE_URL,
+  findResearchProject,
   isLang,
+  pathForArticle,
+  urlForArticle,
   urlForLang,
   type Content,
   type Lang,
+  type ResearchProject,
   type TimelineItem,
 } from "./content";
 

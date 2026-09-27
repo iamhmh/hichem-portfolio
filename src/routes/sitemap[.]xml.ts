@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-import { DEFAULT_LANG, LANGS, urlForLang } from "@/lib/i18n/content";
+import { DEFAULT_LANG, LANGS, RESEARCH_SLUGS, urlForArticle, urlForLang } from "@/lib/i18n/content";
 
 interface SitemapEntry {
   loc: string;
@@ -38,6 +38,25 @@ export const Route = createFileRoute("/sitemap.xml")({
           priority: lang === DEFAULT_LANG ? "1.0" : "0.9",
           alternates,
         }));
+
+        // Un article par projet de recherche, et par langue - même logique
+        // d'alternates : les deux traductions partagent le slug, seul le
+        // `?lang=` change.
+        for (const slug of RESEARCH_SLUGS) {
+          const articleAlternates = [
+            ...LANGS.map((lang) => ({ hreflang: lang, href: urlForArticle(lang, slug) })),
+            { hreflang: "x-default", href: urlForArticle(DEFAULT_LANG, slug) },
+          ];
+
+          for (const lang of LANGS) {
+            entries.push({
+              loc: urlForArticle(lang, slug),
+              changefreq: "monthly",
+              priority: lang === DEFAULT_LANG ? "0.8" : "0.7",
+              alternates: articleAlternates,
+            });
+          }
+        }
 
         const urls = entries.map((e) =>
           [
